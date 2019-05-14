@@ -4,6 +4,16 @@ import msvcrt
 # from multiprocessing import Pool
 # Eventually run `boxscore()` in async such that user can view boxscore in realtime and query player stats
 
+away_score_str = ""
+home_score_str = ""
+horizontal_border = "+=====+"
+horizontal_border_col = "===+"
+horizontal_middle = "+-----+"
+horizontal_middle_col = "---+"
+def box_score_str(inningIndex, inningTop, newScore):
+	pass
+	
+
 def real_time_game(): 
 	now = datetime.datetime.now()
 	year = now.year
@@ -13,9 +23,12 @@ def real_time_game():
 	game_id = "2019_05_13_oakmlb_seamlb_1" # For debugging
 	game_id_split = game_id.split("_")
 	away_id = game_id_split[3][0:3].upper()
+	away_score_str = "| " + away_id + " |"
 	home_id = game_id_split[4][0:3].upper()
+	home_score_str = "| " + home_id + " |"
 	inningIndex = 0
 	inningTop = True
+
 
 	while True:
 		if msvcrt.kbhit(): # On key-press, end program
