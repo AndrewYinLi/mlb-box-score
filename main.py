@@ -10,7 +10,7 @@ horizontal_border = "+=====+"
 horizontal_border_col = "===+"
 horizontal_middle = "+-----+"
 horizontal_middle_col = "---+"
-def box_score_str(inningIndex, inningTop, newScore):
+def update_box_score_str(inning_dict):
 	pass
 	
 
@@ -27,16 +27,17 @@ def real_time_game():
 	home_id = game_id_split[4][0:3].upper()
 	home_score_str = "| " + home_id + " |"
 	inningIndex = 0
-	inningTop = True
-
 
 	while True:
 		if msvcrt.kbhit(): # On key-press, end program
 			break
 
+		innings_list = mlb.box_score(game_id).__dict__["innings"] # Get list of innings. Each inning is a dict e.g. `{'inning': 1, 'home': 1, 'away': 0}`
+		update_box_score_str(innings_list[inningIndex])
 
-		print(mlb.overview(game_id))
-		#print(mlb.box_score(game_id).__dict__)
+		currentInningIndex = len(innings_list) - 1
+		if currentInningIndex != inningIndex: # New inning
+			print(innings_list[0])
 		#print(len(mlb.game_events(game_id)))
 		#print(mlb.game_events(game_id))
 		#print(mlb.game_events(game_id)[0].num) # Get number of half-innings played
