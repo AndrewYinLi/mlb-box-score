@@ -9,36 +9,12 @@ import argparse
 
 # Dict mapping city abbreviation to team plural
 team_dict = {
-	"LAA":"Angels",
-	"HOU":"Astros",
-	"OAK":"Athletics",
-	"TOR":"Blue Jays",
-	"ATL":"Braves",
-	"MIL":"Brewers",
-	"STL":"Cardinals",
-	"CHC":"Cubs",
-	"ARI":"Diamondbacks",
-	"LAD":"Dodgers",
-	"SF":"Giants",
-	"CLE":"Indians",
-	"SEA":"Mariners", 
-	"MIA":"Marlins",
-	"NYM":"Mets",
-	"WAS":"Nationals",
-	"BAL":"Orioles",
-	"SD":"Padres",
-	"PHI":"Phillies",
-	"PIT":"Pirates",
-	"TEX":"Rangers",
-	"TB":"Rays",
-	"BOS":"Red Sox",
-	"CIN":"Reds",
-	"COL":"Rockies",
-	"KC":"Royals",
-	"DET":"Tigers",
-	"MIN":"Twins",
-	"CWS":"White Sox",
-	"NYY":"Yankees"
+	"LAA":"Angels", "HOU":"Astros", "OAK":"Athletics", "TOR":"Blue Jays", "ATL":"Braves",
+	"MIL":"Brewers", "STL":"Cardinals", "CHC":"Cubs", "ARI":"Diamondbacks", "LAD":"Dodgers",
+	"SF":"Giants", "CLE":"Indians", "SEA":"Mariners", "MIA":"Marlins", "NYM":"Mets",
+	"WAS":"Nationals", "BAL":"Orioles", "SD":"Padres", "PHI":"Phillies", "PIT":"Pirates",
+	"TEX":"Rangers", "TB":"Rays", "BOS":"Red Sox", "CIN":"Reds", "COL":"Rockies",
+	"KC":"Royals", "DET":"Tigers", "MIN":"Twins", "CWS":"White Sox", "NYY":"Yankees"
 }
 
 """
@@ -83,7 +59,6 @@ def get_box_score_str(innings_list, away_score_str, home_score_str):
 		home_inning_score = inning_dict["home"]
 		if home_inning_score == "":
 			home_inning_score = "-"
-
 		# Formatting for double-digit scores and innings
 		if (type(away_inning_score) == int and away_inning_score > 9) or (type(home_inning_score) == int and home_inning_score > 9) or inning_num > 9:
 			horizontal_top += "-"
@@ -95,7 +70,6 @@ def get_box_score_str(innings_list, away_score_str, home_score_str):
 				home_score_str += " "
 			if inning_num < 10:
 				inning_header_str += " "
-
 		# Update borders, middle line, and score for inning
 		horizontal_top += horizontal_border_col
 		inning_header_str += " " + str(inning_num) + " |"
@@ -130,13 +104,12 @@ Continuously print the box score for an MLB game until it is over.
 """
 def real_time_game(team_query):
 	team_plural = get_team_plural(team_query)
-	print(team_plural) # debug
-
+	#print(team_plural) # debug
 	now = datetime.datetime.now()
 	year = now.year
 	month = now.month
 	day = now.day
-	try: # API can be buggy
+	try:
 		game_id = mlb.day(year, month, day, home=team_plural, away=team_plural)[0].game_id
 	except:
 		game_is_null_msg()
