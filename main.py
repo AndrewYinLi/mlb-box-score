@@ -41,26 +41,21 @@ team_dict = {
 	"NYY":"Yankees"
 }
 
-# Verify team plural is correct
-def verify_team_plural(team_plural):
-	team_plural = team_plural[0].upper() + team_plural[1:].lower() 
-	for cur_plural in team_dict.values():
-		if cur_plural[0] + cur_plural.replace(" ", "")[1:].lower() == team_plural:
-			return cur_plural
-	return None
-
-# Get abbreviation from team plural (important to not call this a mascot)
-def get_team_plural(city_abbreviation):
-	city_abbreviation = city_abbreviation.upper()
-	if city_abbreviation in team_dict:
-		return team_dict[city_abbreviation]
-	return None
+def get_team_plural(team_query):
+	if len(team_query) <= 3: # If query was city abbreviation
+		team_query = team_query.upper() # Reformat
+		if team_query in team_dict: # Validate
+			return team_dict[team_query]
+	else: # If query was a plural
+		team_query = team_query[0].upper() + team_query[1:].lower() # Reformat
+		for cur_plural in team_dict.values():
+			if cur_plural[0] + cur_plural.replace(" ", "")[1:].lower() == team_query:
+				return cur_plural
+	bad_team_name_msg(team_query) # If query was not found in team_dict
 
 # While we could update the part of the string that corresponds to the current inning's score and save the rest,
 # generating the string from scratch handle edge cases such as rain-delay games being continued the next day, overturned calls, etc.
 def get_box_score_str(innings_list, away_score_str, home_score_str):
-	if len(innings_list) == 0: # No game or game hasn't yet started
-		return ""
 	horizontal_top = "+=====+"
 	horizontal_div = "+-----+"
 	horizontal_bot = "+=====+"
@@ -108,17 +103,12 @@ def bad_team_name_msg(input_team):
 	sys.exit(1)
 
 def game_is_null_msg():
-	print("Error: Game hasn't started yet or there isn't a game today.")
+	print("Error: Game hasn't started yet or there isn't a game scheduled for today.")
 	sys.exit(1)
 
 def real_time_game(team_query):
-	if len(team_query) <= 3: # If city abbreviation
-		team_plural = get_team_plural(team_query)
-	else: # If team plural
-		team_plural = verify_team_plural(team_query)
-	if team_plural == None:
-		bad_team_name_msg(team_query)
-	# print(team_plural) # debug
+	team_plural = get_team_plural(team_query)
+	print(team_plural) # debug
 
 	now = datetime.datetime.now()
 	year = now.year
@@ -138,6 +128,20 @@ def real_time_game(team_query):
 	home_score_str = "| " + home_abbreviation + " |"
 	inningIndex = 0
 	prev_box_score_str = None
+	is_top = True
+	# Get current event_index
+	event_index = 0
+	game_events = mlb.game_events(game_id)
+	cur_inning_num = len(game_events)	
+	for inning_events in game_events: # Loop through all innings because API gives them out of order
+		if inning_events.num == cur_inning_num: # If current inning inning
+			if len(inning_events.bottom) > 0: # if bottom inning
+				is_top = False
+				event_index = len(inning_events.bottom) - 1
+			elif len(inning_events.top) > 0: # if top inning
+				event_index = len(inning_events.top) - 1
+			# `event_index` defaults to 0
+	# Continuously update until game is over, user exits, or error
 	while True:
 		if msvcrt.kbhit(): # On key-press, end program
 			return
@@ -147,17 +151,11 @@ def real_time_game(team_query):
 			game_is_null_msg()
 			return
 		cur_box_score_str = get_box_score_str(innings_list, away_score_str, home_score_str)
-		if cur_box_score_str == "": # API can be buggy
-			game_is_null_msg()
-			return
-		elif cur_box_score_str != prev_box_score_str:
+		if cur_box_score_str != prev_box_score_str:
 			print(cur_box_score_str)
 			prev_box_score_str = cur_box_score_str
-
 		game_events = mlb.game_events(game_id)
-		cur_inning_num = len(game_events)
-		event_index = 0
-		is_top = True 
+		cur_inning_num = len(game_events)	
 		for inning_events in game_events: # Loop through all innings because API gives them out of order
 			if inning_events.num == cur_inning_num: # If current inning inning
 				if len(inning_events.bottom) > 0: # if bottom inning
