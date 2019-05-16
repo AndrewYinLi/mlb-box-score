@@ -74,21 +74,24 @@ def real_time_game():
 		cur_inning_num = len(game_events)
 		event_index = 0
 		is_top = True 
-		for inning_events in game_events:
-			if inning_events.num == cur_inning_num:
+		for inning_events in game_events: # Loop through all innings because API gives them out of order
+			if inning_events.num == cur_inning_num: # If current inning inning
 				if len(inning_events.bottom) > 0: # if bottom inning
-					if is_top:
+					if is_top: # If change in inning, flip `is_top` and reset `event_index`
 						is_top = False
 						event_index = 0
 					if len(inning_events.bottom) > event_index:
 						print(inning_events.bottom[event_index])
 						event_index += 1
 				elif len(inning_events.top) > 0: # if top inning
-					if len(inning_events.topm) > event_index:
+					if not is_top: # If change in inning, flip `is_top` and reset `event_index`
+						is_top = True
+						event_index = 0
+					if len(inning_events.top) > event_index:
 						print(inning_events.top[event_index])
 						event_index += 1
-		print(mlb.game_events(game_id)[0].num) # Events for inning `num`
-		print(mlb.game_events(game_id)[0].top[0])
+		#print(mlb.game_events(game_id)[0].num) # Events for inning `num`
+		#print(mlb.game_events(game_id)[0].top[0])
 		#print(game_events)
 
 def main():
