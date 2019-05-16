@@ -7,7 +7,7 @@ import argparse
 # from multiprocessing import Pool
 # Eventually run `boxscore()` in async such that user can view boxscore in realtime and query player stats
 
-# Dictionary mapping city abbreviation to team plural
+# Dict mapping city abbreviation to team plural
 team_dict = {
 	"LAA":"Angels",
 	"HOU":"Astros",
@@ -41,6 +41,13 @@ team_dict = {
 	"NYY":"Yankees"
 }
 
+"""
+Returns team plural correctly formatted regardless of whether.
+`team_query` is a city abbreviation or team plural.
+@param team_query: city abbreviation or team plural to get box score for.
+@throws: Calls `bead_team_name_msg` is input is invalid.
+@return: team plural for `team_query`.
+"""
 def get_team_plural(team_query):
 	if len(team_query) <= 3: # If query was city abbreviation
 		team_query = team_query.upper() # Reformat
@@ -53,8 +60,13 @@ def get_team_plural(team_query):
 				return cur_plural
 	bad_team_name_msg(team_query) # If query was not found in team_dict
 
-# While we could update the part of the string that corresponds to the current inning's score and save the rest,
-# generating the string from scratch handle edge cases such as rain-delay games being continued the next day, overturned calls, etc.
+"""
+Formats the box score such that it is aesthetically pleasing.
+@param innings_list: list of dictionaries containing scores for each half of an inning.
+@param away_score_str: The away team's city's abbreviation to append to and incorporate into the box score string.
+@param home_score_str: The home team's city's abbreviation to append to and incorporate into the box score string.
+@return: the box score formatted as a string.
+"""
 def get_box_score_str(innings_list, away_score_str, home_score_str):
 	horizontal_top = "+=====+"
 	horizontal_div = "+-----+"
@@ -94,6 +106,9 @@ def get_box_score_str(innings_list, away_score_str, home_score_str):
 		inning_num += 1
 	return horizontal_top + "\n" + inning_header_str + "\n" + horizontal_div + "\n" + away_score_str + "\n" + horizontal_div + "\n" + home_score_str + "\n" + horizontal_bot
 
+"""
+@throws: Prints the correct way to format a team query and exits program.
+"""
 def bad_team_name_msg(input_team):
 	print("Error: Invalid team query. Please input the team plural or city abbreviation as follows: ")
 	correctUse = ""
@@ -102,10 +117,17 @@ def bad_team_name_msg(input_team):
 	print(correctUse[:len(correctUse)-2] + ".")
 	sys.exit(1)
 
+"""
+@throws: Prints that game is invalid exits program.
+"""
 def game_is_null_msg():
 	print("Error: Game hasn't started yet or there isn't a game scheduled for today.")
 	sys.exit(1)
 
+"""
+Continuously print the box score for an MLB game until it is over.
+@param team_query: City abbreviation or team plural to get box score for.
+"""
 def real_time_game(team_query):
 	team_plural = get_team_plural(team_query)
 	print(team_plural) # debug
@@ -141,7 +163,7 @@ def real_time_game(team_query):
 			elif len(inning_events.top) > 0: # if top inning
 				event_index = len(inning_events.top) - 1
 			# `event_index` defaults to 0
-	# Continuously update until game is over, user exits, or error
+	# Continuously loop until game is over, user exits, or error
 	while True:
 		if msvcrt.kbhit(): # On key-press, end program
 			return
