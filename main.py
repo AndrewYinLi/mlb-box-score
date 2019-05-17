@@ -1,7 +1,7 @@
-#import mlbgame as mlb
+import mlbgame as mlb
 import sys
-sys.path.insert(0, 'C:\\Users\\andre\\Documents\\GitHub\\mlbgame')
-from mlbgame import mlbgame as mlb
+#sys.path.insert(0, 'C:\\Users\\andre\\Documents\\GitHub\\mlbgame')
+#from mlbgame import mlbgame as mlb
 import datetime
 import msvcrt
 import time
@@ -127,18 +127,7 @@ def real_time_game(team_query):
 	inningIndex = 0
 	prev_box_score_str = None
 	is_top = True
-	# Get current event_index
-	event_index = 0
-	game_events = mlb.game_events(game_id)
-	cur_inning_num = len(game_events)	
-	for inning_events in game_events: # Loop through all innings because API gives them out of order
-		if inning_events.num == cur_inning_num: # If current inning inning
-			if len(inning_events.bottom) > 0: # if bottom inning
-				is_top = False
-				event_index = len(inning_events.bottom) - 1
-			elif len(inning_events.top) > 0: # if top inning
-				event_index = len(inning_events.top) - 1
-			# `event_index` defaults to 0
+	last_event = "NONE"
 	# Continuously loop until game is over, user exits, or error
 	while True:
 		if msvcrt.kbhit(): # On key-press, end program
@@ -153,31 +142,26 @@ def real_time_game(team_query):
 		if cur_box_score_str != prev_box_score_str:
 			print(cur_box_score_str)
 			prev_box_score_str = cur_box_score_str
-		game_events = mlb.game_events(game_id)
-		cur_inning_num = len(game_events)	
+		game_events = mlb.game_events(game_id) # List of lists, each indice is a full inning's events
+		cur_inning_num = len(game_events) # Get current inning num
+
 		for inning_events in game_events: # Loop through all innings because API gives them out of order
 			if inning_events.num == cur_inning_num: # If current inning inning
-
 				if len(inning_events.bottom) > 0: # if bottom inning
-					for ev in inning_events.bottom:
-						print(ev.des)
-					print("___________")
-					if is_top: # If change in inning, flip `is_top` and reset `event_index`
-						is_top = False
-						event_index = 0
-					if len(inning_events.bottom) > event_index:
-						print(inning_events.bottom[event_index].__dict__)
-						event_index += 1
+					# for ev in inning_events.bottom:
+					# 	print(ev.des)
+					cur_event = inning_events.bottom[len(inning_events.bottom)-1].des
+					if cur_event != last_event and cur_event != "":
+						print(cur_event)
+						last_event = cur_event
 				elif len(inning_events.top) > 0: # if top inning
-					for ev in inning_events.top:
-						print(ev.des)
-					print("___________")
-					if not is_top: # If change in inning, flip `is_top` and reset `event_index`
-						is_top = True
-						event_index = 0
-					if len(inning_events.top) > event_index:
-						print(inning_events.top[event_index].__dict__)
-						event_index += 1
+					# for ev in inning_events.bottom:
+					# 	print(ev.des)
+					cur_event = inning_events.top[len(inning_events.top)-1].des
+					if cur_event != last_event and cur_event != "":
+						print(cur_event)
+						last_event = cur_event
+
 def main(args):
 	print("Fetching...")
 	real_time_game(args.team_query) # Refactor this later to account for new argparse args
