@@ -1,8 +1,11 @@
-import mlbgame as mlb
+#import mlbgame as mlb
+import sys
+sys.path.insert(0, 'C:\\Users\\andre\\Documents\\GitHub\\mlbgame')
+from mlbgame import mlbgame as mlb
 import datetime
 import msvcrt
 import time
-import sys
+
 import argparse
 # from multiprocessing import Pool
 # Eventually run `boxscore()` in async such that user can view boxscore in realtime and query player stats
@@ -142,7 +145,8 @@ def real_time_game(team_query):
 			return
 		try: # API can be buggy
 			innings_list = mlb.box_score(game_id).__dict__["innings"] # Get list of innings. Each inning is a dict e.g. `{'inning': 1, 'home': 1, 'away': 0}`
-		except:
+		except Exception as e:
+			print(e)
 			game_is_null_msg()
 			return
 		cur_box_score_str = get_box_score_str(innings_list, away_score_str, home_score_str)
@@ -153,30 +157,33 @@ def real_time_game(team_query):
 		cur_inning_num = len(game_events)	
 		for inning_events in game_events: # Loop through all innings because API gives them out of order
 			if inning_events.num == cur_inning_num: # If current inning inning
+
 				if len(inning_events.bottom) > 0: # if bottom inning
+					for ev in inning_events.bottom:
+						print(ev.des)
+					print("___________")
 					if is_top: # If change in inning, flip `is_top` and reset `event_index`
 						is_top = False
 						event_index = 0
 					if len(inning_events.bottom) > event_index:
-						print(inning_events.bottom[event_index])
+						print(inning_events.bottom[event_index].__dict__)
 						event_index += 1
 				elif len(inning_events.top) > 0: # if top inning
+					for ev in inning_events.top:
+						print(ev.des)
+					print("___________")
 					if not is_top: # If change in inning, flip `is_top` and reset `event_index`
 						is_top = True
 						event_index = 0
 					if len(inning_events.top) > event_index:
-						print(inning_events.top[event_index])
+						print(inning_events.top[event_index].__dict__)
 						event_index += 1
-		#print(mlb.game_events(game_id)[0].num) # Events for inning `num`
-		#print(mlb.game_events(game_id)[0].top[0])
-		#print(game_events)
-
 def main(args):
 	print("Fetching...")
 	real_time_game(args.team_query) # Refactor this later to account for new argparse args
 
 if __name__ == '__main__':
-	# Define and parse arguments
+	# Define and parse arguments using the `argparse` library
 	parser = argparse.ArgumentParser()
 	parser.add_argument("team_query", help="Team to get box score for.")
 	args = parser.parse_args()
