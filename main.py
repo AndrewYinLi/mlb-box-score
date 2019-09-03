@@ -1,9 +1,6 @@
 import mlbgame as mlb
 import sys
-#sys.path.insert(0, 'C:\\Users\\andre\\Documents\\GitHub\\mlbgame')
-#from mlbgame import mlbgame as mlb
 import datetime
-import msvcrt
 import time
 
 import argparse
@@ -130,8 +127,6 @@ def real_time_game(team_query):
 	last_event = "NONE"
 	# Continuously loop until game is over, user exits, or error
 	while True:
-		if msvcrt.kbhit(): # On key-press, end program
-			return
 		try: # API can be buggy
 			innings_list = mlb.box_score(game_id).__dict__["innings"] # Get list of innings. Each inning is a dict e.g. `{'inning': 1, 'home': 1, 'away': 0}`
 		except Exception as e:
